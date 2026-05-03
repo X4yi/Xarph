@@ -1,0 +1,13 @@
+module qs
+
+singleton WorkspaceService 1.0 services/WorkspaceService.qml
+singleton SystemService 1.0 services/SystemService.qml
+singleton ConfigService 1.0 services/ConfigService.qml
+singleton TimeService 1.0 services/TimeService.qml
+
+Sidebar 1.0 panels/Sidebar.qml
+
+WorkspaceList 1.0 components/WorkspaceList.qml
+Clock 1.0 components/Clock.qml
+SystemIndicators 1.0 components/SystemIndicators.qml
+SystemIcon 1.0 components/SystemIcon.qml

@@ -1,0 +1,1 @@
+// Empty window service placeholder

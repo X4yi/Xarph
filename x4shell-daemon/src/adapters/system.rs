@@ -1,0 +1,1 @@
+// System event adapter placeholder
