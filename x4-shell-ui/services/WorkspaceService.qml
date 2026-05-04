@@ -15,6 +15,10 @@ Item {
 
     Component.onCompleted: {
         console.log("WorkspaceService initialized")
+        if (root.daemonInterface) {
+            root.daemonInterface.onWorkspaceChanged.connect(root.onWorkspaceChanged)
+            root.refreshWorkspaces()
+        }
     }
 
     function onWorkspaceChanged(workspace) {

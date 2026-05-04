@@ -1,2 +1,6 @@
-# md
-r.md
+**/target/
+.idea/
+*.swp
+.DS_Store
+*.rs.bk
+**reglas.md

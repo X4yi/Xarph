@@ -5,9 +5,7 @@ use std::fs;
 pub fn run(cli: &crate::cli::Cli) -> Result<(), Box<dyn std::error::Error>> {
     tracing::info!("Starting x4-shell uninstallation");
 
-    systemd::stop_service(cli.dry_run)?;
-    systemd::disable_service(cli.dry_run)?;
-
+    // Remove systemd service file if exists
     let service_path = paths::systemd_service_dir().join("x4-shell-daemon.service");
     if service_path.exists() {
         if cli.dry_run {
@@ -17,6 +15,10 @@ pub fn run(cli: &crate::cli::Cli) -> Result<(), Box<dyn std::error::Error>> {
             tracing::info!("Removed service file {}", service_path.display());
         }
     }
+
+    // Try to stop/disable service (ignore errors if not active)
+    let _ = systemd::stop_service(cli.dry_run);
+    let _ = systemd::disable_service(cli.dry_run);
 
     let session_user = paths::session_dir_user().join("x4-shell.desktop");
     let session_system = paths::session_dir_system().join("x4-shell.desktop");

@@ -40,7 +40,7 @@ pub fn run(cli: &crate::cli::Cli) -> Result<(), Box<dyn std::error::Error>> {
     };
     if !session_script.exists() {
         tracing::warn!("Missing session script, reinstalling");
-        session::install_session_script(cli.system_wide, cli.dry_run)?;
+        session::install_session_script(cli.system_wide, cli.dry_run, None)?;
     }
 
     let service_path = paths::systemd_service_dir().join("x4-shell-daemon.service");
@@ -56,7 +56,7 @@ pub fn run(cli: &crate::cli::Cli) -> Result<(), Box<dyn std::error::Error>> {
     };
     if !session_file.exists() {
         tracing::warn!("Missing session file, reinstalling");
-        session::install_session_file(cli.system_wide, cli.dry_run)?;
+        session::install_session_file(cli.system_wide, cli.dry_run, None)?;
     }
 
     tracing::info!("Repair complete!");

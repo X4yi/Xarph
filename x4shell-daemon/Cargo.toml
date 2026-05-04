@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 description = "X4Shell backend daemon for Hyprland"
 authors = ["X4Yi"]
-license = "MIT"
 
 [dependencies]
 tokio = { version = "1.38", features = ["full"] }

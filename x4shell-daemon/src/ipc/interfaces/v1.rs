@@ -4,7 +4,7 @@ use crate::core::{
     traits::StateStore,
 };
 use std::sync::Arc;
-use zbus::{interface, SignalContext};
+use zbus::SignalContext;
 use serde::{Serialize, Deserialize};
 use zbus::zvariant::Type;
 

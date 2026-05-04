@@ -7,7 +7,7 @@ After=graphical-session.target
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=%h/.local/bin/x4-shell-daemon
+ExecStart=/usr/local/bin/x4shell-daemon
 Restart=on-failure
 RestartSec=5s
 
