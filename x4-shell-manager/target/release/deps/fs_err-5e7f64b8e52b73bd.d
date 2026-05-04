@@ -1,0 +1,12 @@
+/home/x4yi/Documentos/X4Shell/x4-shell-manager/target/release/deps/fs_err-5e7f64b8e52b73bd.d: /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/lib.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/dir.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/errors.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/file.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/open_options.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/os.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/os/unix.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/path.rs
+
+/home/x4yi/Documentos/X4Shell/x4-shell-manager/target/release/deps/libfs_err-5e7f64b8e52b73bd.rmeta: /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/lib.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/dir.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/errors.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/file.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/open_options.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/os.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/os/unix.rs /home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/path.rs
+
+/home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/lib.rs:
+/home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/dir.rs:
+/home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/errors.rs:
+/home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/file.rs:
+/home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/open_options.rs:
+/home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/os.rs:
+/home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/os/unix.rs:
+/home/x4yi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/fs-err-2.11.0/src/path.rs:
