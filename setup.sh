@@ -107,6 +107,13 @@ get_sudo_password() {
         return
     fi
     
+    # Check if we're in an interactive terminal
+    if [[ ! -t 0 ]]; then
+        log_warn "Non-interactive terminal detected. Skipping sudo password prompt."
+        log_warn "Will install user-local only, or run: sudo bash setup.sh repair"
+        return
+    fi
+    
     read -s -p "Enter sudo password (or press Enter to skip system-wide install): " SUDO_PASSWORD
     echo ""
     
@@ -115,7 +122,7 @@ get_sudo_password() {
         return
     fi
     
-    if echo "$SUDO_PASSWORD" | sudo -S true 2>/dev/null; then
+    if printf '%s\n' "$SUDO_PASSWORD" | sudo -S true 2>/dev/null; then
         HAS_SUDO=true
         log_success "Sudo authenticated"
     else
@@ -128,8 +135,9 @@ get_sudo_password() {
 run_sudo() {
     if [[ $HAS_SUDO == true ]]; then
         sudo "$@"
-    elif [[ -n "$SUDO_PASSWORD" ]]; then
-        echo "$SUDO_PASSWORD" | sudo -S "$@"
+    elif [[ -n "${SUDO_PASSWORD:-}" ]]; then
+        # Use -S flag to read password from stdin
+        printf '%s\n' "$SUDO_PASSWORD" | sudo -S "$@" 2>&1 | grep -v "^\[sudo\]" || true
     else
         log_error "No sudo access. Cannot run: $*"
         return 1
@@ -639,6 +647,11 @@ main() {
     export FORCE=$force
     
     check_sudo
+    
+    # If not root and sudo not available, prompt for password
+    if [[ $EUID -ne 0 ]] && [[ $HAS_SUDO != true ]]; then
+        get_sudo_password
+    fi
     
     if [[ -z "$action" ]]; then
         while true; do
