@@ -225,7 +225,7 @@ do_install() {
     if [[ -x "$daemon_src" ]]; then
         if [[ $HAS_SUDO == true ]]; then
             log_info "Installing daemon to $DAEMON_BIN_SYSTEM..."
-            [[ $dry_run != "true" ]] && run_sudo cp "$daemon_src" "$DAEMON_BIN_SYSTEM" && run_sudo chmod 755 "$DAEMON_BIN_SYSTEM/x4shell-daemon"
+            [[ $dry_run != "true" ]] && run_sudo cp "$daemon_src" "$DAEMON_BIN_SYSTEM" && run_sudo chmod 755 "$DAEMON_BIN_SYSTEM"
             daemon_installed=true
         fi
         
