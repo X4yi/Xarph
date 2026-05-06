@@ -1,0 +1,12 @@
+[Unit]
+Description=X4 Shell Daemon
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=@DAEMON_PATH@
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=graphical-session.target

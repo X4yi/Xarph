@@ -1,123 +1,130 @@
 # X4Shell
 
-Shell de escritorio para Wayland basado en Hyprland. Proyecto personal sin afiliación a ninguna empresa u organización.
+A custom Wayland desktop shell built on top of Hyprland, featuring a Rust-based daemon backend and a QML-based UI frontend.
 
-> **Estado actual**: Prototipo temprano. La infraestructura base está implementada pero no hay funcionalidad end-to-end completa.
+> **Status**: Early prototype - Not ready for production use.
 
----
+## Architecture
 
-## Características implementadas.
+```
+X4Shell/
+├── setup.sh          # Main setup script (install/repair/update/uninstall)
+├── daemon/           # Rust backend daemon (x4shell-daemon)
+├── ui/               # QML frontend (Quickshell)
+├── xgit/             # Git helper tool (Bash)
+├── config/           # Configuration templates and defaults
+│   ├── hyprland/    # Hyprland configs
+│   ├── daemon/       # Daemon settings
+│   ├── systemd/      # Systemd service templates
+│   ├── session/      # Session scripts and .desktop files
+│   └── defaults/     # Default user configs
+└── docs/             # Documentation
+```
 
-### Backend (x4shell-daemon)
-- Conexión al socket de Hyprland (`.socket2.sock`) con lógica de reintento
-- Parseo de 5 tipos de eventos de Hyprland: `workspace`, `windowOpen`, `windowClose`, `monitorAdded`, `monitorRemoved`
-- Servidor D-Bus en el bus de sesión exponiendo la ruta `/org/x4yi/X4Shell/v1`
-- Almacenamiento de estado con `ArcStateStore` (áreas de trabajo)
-- Apagado graceful vía señales SIGINT/SIGTERM
-- Métodos D-Bus: `GetWorkspaces`, `SwitchWorkspace`, `Ping`
-- Emisión de señal `WorkspaceChanged` cuando cambia el estado
+For detailed architecture information, see [docs/architecture.md](docs/architecture.md).
 
-### UI (x4-shell-ui)
-- Punto de entrada QML (`main.qml`) que carga un panel lateral
-- Servicios: `WorkspaceService`, `TimeService`, `SystemService`, `ConfigService`
-- Componentes: `Clock`, `WorkspaceList`, `SystemIndicators`, `SystemIcon`
-- `ConfigService.qml` implementado: carga configuración desde `settings.json`
-- Tema básico (`DefaultTheme.qml`)
+## Features (So Far)
 
----
+### Backend (daemon/)
+- Connection to Hyprland socket via tokio
+- Event parsing: workspace, windowOpen, windowClose, monitorAdded, monitorRemoved
+- D-Bus session bus interface at `/org/x4yi/X4Shell/v1`
+- Shared state management with `ArcStateStore`
+- Graceful shutdown via SIGINT/SIGTERM
 
-## Instalación
+### UI (ui/)
+- QML-based interface with Quickshell
+- Workspace management components
+- System indicators and clock
+- Themeable (see `ui/themes/`)
+- D-Bus service integration
 
-### Requisitos previos
-- Sistema basado en Arch Linux
-- Hyprland instalado
-- Quickshell instalado
-- Rust toolchain (para compilar)
-- Qt6 (qt6-base, qt6-declarative)
+### Setup Script (setup.sh)
+- **Install**: Full system setup with dependency checking
+- **Repair**: Fix broken installations
+- **Update**: Pull latest changes and recompile
+- **Uninstall**: Remove X4Shell (with `--purge` option)
+- **Status**: Check installation health
+- Colored CLI with interactive menu
 
-### Pasos
+## Quick Start
+
+### Installation
 ```bash
-git clone https://github.com/X4yi/X4Shell.git
-cd X4Shell/x4-shell-manager
-cargo run -- install
+cd X4Shell/
+./setup.sh install
 ```
 
-Para instalación system-wide:
+Or use the interactive menu:
 ```bash
-cargo run -- install --system-wide
+./setup.sh
 ```
 
-Para probar sin cambios reales:
+### Post-Install
+1. Logout and select **"X4 Shell"** from your display manager (GDM, SDDM, etc.)
+2. Or run manually: `/usr/local/bin/x4-shell-session`
+
+## Requirements
+
+- **Hyprland** (window manager)
+- **Quickshell** (QML runtime)
+- **systemd** (service management)
+- **D-Bus** (IPC)
+- **Rust & Cargo** (to compile the daemon)
+
+## Documentation
+
+- [Installation Guide](docs/installation.md)
+- [Architecture Overview](docs/architecture.md)
+
+## Development
+
+### Build Daemon Only
 ```bash
-cargo run -- install --dry-run
+cd daemon/
+cargo build --release
 ```
 
-### Desinstalación
+### Run Daemon Manually
 ```bash
-cargo run -- uninstall
+./daemon/target/release/x4shell-daemon
 ```
 
----
-
-## Configuración
-
-### Archivos de configuración
-- **Hyprland**: `$XDG_CONFIG_HOME/x4-shell/hypr/hyprland.conf`
-- **Shell**: `$XDG_CONFIG_HOME/x4-shell/shell/settings.json`
-
-### Ejemplo de `settings.json`
-```json
-{
-    "sidebar": {
-        "position": "left"
-    },
-    "clock": {
-        "format": "24h"
-    }
-}
+### Test D-Bus Interface
+```bash
+busctl --user call org.x4yi.X4Shell.v1 /org/x4yi/X4Shell/v1 org.x4yi.X4Shell.v1 Ping
 ```
 
----
+## Setup Script Usage
 
-## Qué falta (No implementado)
+```bash
+./setup.sh [command] [options]
 
-### Funcionalidad core
-- **Sincronización end-to-end**: Los eventos de Hyprland se reciben pero el estado de workspaces no se actualiza consistentemente
-- **Métodos D-Bus incompletos**: `SwitchWorkspace` envía comandos a Hyprland pero no verifica respuesta
-- **Manejo de ventanas/monitores**: Los tipos `Window`, `Monitor` están definidos pero no se usan
-- **UI no se conecta a señales D-Bus**: `WorkspaceService.qml` no escucha `workspace_changed` correctamente
-- **Falta servicio systemd**: El instalador no crea el servicio systemd automáticamente
+Commands:
+  install     Full system setup
+  repair      Fix broken installations
+  update      Update to latest version
+  uninstall   Remove X4Shell (add --purge to delete config/data)
+  status      Check installation health
 
-### Comandos del manager
-- `update`, `repair`, `status` están incompletos
-- `uninstall` no maneja correctamente archivos faltantes
+Options:
+  --dry-run   Simulate without making changes
+  --verbose   Show debug output
+  --force     Overwrite existing configs
+  --purge     Delete all config and data (with uninstall)
+```
 
-### Dependencias
-- Quickshell no se instala automáticamente (solo se verifica)
-- No hay verificación de versión de Quickshell
+## Known Issues
 
-## Requisitos del sistema
+- End-to-end sync between daemon and UI is incomplete
+- UI may not listen to D-Bus signals correctly
+- `SwitchWorkspace` doesn't verify response
+- Some components are placeholders (e.g., WindowService, config loader)
 
-- **OS**: Arch Linux Based distro
-- **Wayland compositor**: Hyprland
-- **UI toolkit**: Quickshell (QML)
-- **Rust**: Para compilación
-- **Qt6**: qt6-base, qt6-declarative
+## License
 
----
+(Add your license here)
 
-## Estado
+## Contributing
 
-El proyecto está en una fase **muy temprana**. El esqueleto está ahí: el daemon se compila, el manager instala archivos, la UI tiene estructura. Pero no hay un flujo completo que funcione de principio a fin: los workspaces no se sincronizan, la UI no reacciona a cambios, y faltan comandos importantes.
-
-**No usar en producción**. Es un proyecto personal incompleto
-
-## Capturas de pantalla
-
-*Por ahora no hay capturas: la UI no es completamente funcional.*
-
----
-
-## Cómo contribuir
-
-Como es un proyecto personal, no se aceptan contribuciones externas por el momento. Pero siéntete libre de hacer fork y adaptarlo a tus necesidades.
+This is a personal project in early stages. Feel free to fork and experiment!

@@ -1,0 +1,19 @@
+#!/bin/sh
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+DAEMON_PATH="@DAEMON_PATH@"
+if [ ! -x "$DAEMON_PATH" ]; then
+    DAEMON_PATH="$HOME/.local/bin/x4shell-daemon"
+fi
+if [ ! -x "$DAEMON_PATH" ]; then
+    echo "x4shell-daemon not found" >&2
+    exit 1
+fi
+$DAEMON_PATH &
+
+sleep 1
+
+quickshell -c "@UI_PATH@/main.qml" &
+
+exec Hyprland --config "$XDG_CONFIG_HOME/x4-shell/hypr/hyprland.conf"

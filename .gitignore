@@ -1,6 +1,20 @@
+# Rust build artifacts
 **/target/
+
+# IDE files
 .idea/
 *.swp
 .DS_Store
+
+# Backup files
 *.rs.bk
-**reglas.md
+*~
+*.bak
+
+# Project specific
+**/reglas.md
+
+# Build logs
+**/*.log
+
+nocoments.py

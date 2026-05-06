@@ -1,0 +1,10 @@
+{
+    "daemon": {
+        "ipc_version": "1",
+        "log_level": "info",
+        "socket_path": "@SESSION_BUS@"
+    },
+    "ui": {
+        "qml_path": "@UI_PATH@/main.qml"
+    }
+}

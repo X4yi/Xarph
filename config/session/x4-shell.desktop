@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=X4 Shell
+Comment=Custom Hyprland-based Wayland desktop shell
+Exec=@SESSION_SCRIPT_PATH@
+Type=Application
+DesktopNames=X4Shell
+Keywords=wayland;hyprland;
