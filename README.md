@@ -21,7 +21,7 @@ X4Shell/
 └── docs/             # Documentation
 ```
 
-For detailed architecture information, see [docs/architecture.md](docs/architecture.md).
+For detailed architecture information, see [docs/architecture.md](docs/architecture.es.md).
 
 ## Features (So Far)
 
@@ -74,8 +74,8 @@ Or use the interactive menu:
 
 ## Documentation
 
-- [Installation Guide](docs/installation.md)
-- [Architecture Overview](docs/architecture.md)
+- [Installation Guide](docs/installation.es.md)
+- [Architecture Overview](docs/architecture.es.md)
 
 ## Development
 
