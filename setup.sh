@@ -46,9 +46,11 @@ print_menu() {
     echo -e "  ${CYAN}[3]${NC} Update       - Update to latest version"
     echo -e "  ${CYAN}[4]${NC} Uninstall    - Remove X4Shell (--purge for full wipe)"
     echo -e "  ${CYAN}[5]${NC} Status       - Check installation health"
+    echo -e "  ${CYAN}[6]${NC} Test         - Test shell in separate TTY (no session logout)"
+    echo ""
     echo -e "  ${RED}[q]${NC} Quit"
     echo ""
-    echo -n "Enter option [1-5/q]: "
+    echo -n "Enter option [1-6/q]: "
 }
 
 print_separator() {
@@ -504,6 +506,82 @@ do_status() {
     print_separator
 }
 
+do_test() {
+    print_separator
+    log_info "Preparing X4Shell test environment..."
+    print_separator
+    
+    # Check if we're in a graphical session
+    if [[ -n "${DISPLAY:-}" || -n "${WAYLAND_DISPLAY:-}" ]]; then
+        log_warn "You appear to be in a graphical session."
+        log_info "To test X4Shell, you need to switch to a free TTY (e.g., TTY3)"
+        echo ""
+        echo -e "${BOLD}Instructions:${NC}"
+        echo "  1. Press ${CYAN}Ctrl+Alt+F3${NC} to switch to TTY3"
+        echo "  2. Login with your username and password"
+        echo "  3. Run: ${CYAN}/tmp/x4shell-test.sh${NC}"
+        echo "  4. To return: ${CYAN}Ctrl+Alt+F2${NC} (or F1 depending on your setup)"
+        echo ""
+    fi
+    
+    # Create test script
+    local test_script="/tmp/x4shell-test.sh"
+    local daemon_path="$DAEMON_BIN_SYSTEM"
+    [[ -x "$DAEMON_BIN_USER" ]] && daemon_path="$DAEMON_BIN_USER"
+    
+    cat > "$test_script" << 'TESTEOF'
+#!/bin/bash
+# X4Shell Test Script - Run from a free TTY
+set -e
+
+echo "=== X4Shell Test Mode ==="
+echo "Starting test environment..."
+echo ""
+
+# Set environment
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=X4Shell
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# Find daemon
+DAEMON_PATH="/usr/local/bin/x4shell-daemon"
+if [ ! -x "$DAEMON_PATH" ]; then
+    DAEMON_PATH="$HOME/.local/bin/x4shell-daemon"
+fi
+if [ ! -x "$DAEMON_PATH" ]; then
+    echo "ERROR: x4shell-daemon not found"
+    exit 1
+fi
+
+# Start daemon
+echo "[1/3] Starting daemon..."
+$DAEMON_PATH &
+DAEMON_PID=$!
+sleep 2
+
+# Start UI
+echo "[2/3] Starting UI..."
+quickshell -p "$XDG_DATA_HOME/x4-shell/ui" &
+UI_PID=$!
+sleep 1
+
+# Start Hyprland
+echo "[3/3] Starting Hyprland..."
+echo "Press Ctrl+C or run 'hyprctl dispatch exit' to stop"
+echo ""
+
+# This takes over the TTY
+exec Hyprland --config "$XDG_CONFIG_HOME/x4-shell/hypr/hyprland.conf"
+TESTEOF
+    
+    chmod +x "$test_script"
+    
+    log_success "Test script created at: $test_script"
+    log_info "To test (from TTY3): /tmp/x4shell-test.sh"
+    print_separator
+}
+
 main() {
     local action=""
     local dry_run=false
@@ -512,7 +590,7 @@ main() {
     
     while [[ $# -gt 0 ]]; do
         case $1 in
-            install|repair|update|uninstall|status)
+            install|repair|update|uninstall|status|test)
                 action="$1"
                 shift
                 ;;
@@ -541,6 +619,7 @@ main() {
                 echo "  update      Update to latest version"
                 echo "  uninstall   Remove X4Shell (add --purge to delete config/data)"
                 echo "  status      Check installation health"
+                echo "  test        Test shell in separate TTY (no logout needed)"
                 echo ""
                 echo "Options:"
                 echo "  --dry-run   Simulate without making changes"
@@ -594,6 +673,7 @@ main() {
                 fi
                 ;;
             status) do_status ;;
+            test) do_test ;;
         esac
     fi
 }

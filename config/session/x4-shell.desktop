@@ -6,3 +6,7 @@ Type=Application
 DesktopNames=X4Shell
 Keywords=wayland;hyprland;
 X-GNOME-WaylandName=X4Shell
+X-GNOME-WaylandEnabled=true
+
+# SDDM Wayland support
+X-SDDM-Wayland=true

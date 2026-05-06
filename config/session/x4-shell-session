@@ -7,14 +7,26 @@ export XDG_SESSION_TYPE=wayland
 export XDG_CURRENT_DESKTOP=X4Shell
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+
+# SDDM/Wayland greeter compatibility
+export QT_QPA_PLATFORM=wayland
+export SDL_VIDEODRIVER=wayland
+export MOZ_ENABLE_WAYLAND=1
 
 # Ensure D-Bus session is available (greeter should provide it, but verify)
 if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
-    eval $(dbus-launch --sh-syntax)
+    eval $(dbus-launch --exit-with-session --sh-syntax)
 fi
 
-# Update systemd activation environment
-dbus-update-activation-environment --systemd DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE >/dev/null 2>&1 || true
+# Update systemd activation environment (for user services)
+if command -v dbus-update-activation-environment >/dev/null 2>&1; then
+    dbus-update-activation-environment --systemd \
+        DISPLAY XAUTHORITY \
+        XDG_CURRENT_DESKTOP XDG_SESSION_TYPE \
+        XDG_RUNTIME_DIR QT_QPA_PLATFORM \
+        >/dev/null 2>&1 || true
+fi
 
 # Find daemon binary
 DAEMON_PATH="@DAEMON_PATH@"
