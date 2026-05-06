@@ -12,13 +12,16 @@ pub async fn start(
     workspace_state: Arc<ArcStateStore<Arc<Vec<Workspace>>>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let connection = zbus::Connection::session().await?;
-    let path = "/org/x4yi/X4Shell/v1";
     
+    // Request well-known name on the bus so clients can find us
+    connection.request_name("org.x4yi.X4Shell.v1").await?;
+    
+    let path = "/org/x4yi/X4Shell/v1";
     let iface = X4ShellV1::new(workspace_state.clone());
     
     connection.object_server().at(path, iface).await?;
     
-    tracing::info!("D-Bus server started at {}", path);
+    tracing::info!("D-Bus server started at {} with name org.x4yi.X4Shell.v1", path);
     
     let conn_clone = connection.clone();
     let ws_state = workspace_state.clone();

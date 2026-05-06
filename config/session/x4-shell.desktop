@@ -5,3 +5,4 @@ Exec=@SESSION_SCRIPT_PATH@
 Type=Application
 DesktopNames=X4Shell
 Keywords=wayland;hyprland;
+X-GNOME-WaylandName=X4Shell

@@ -52,6 +52,32 @@ impl X4ShellV1 {
             .collect()
     }
 
+    async fn switch_workspace(&self, id: u32) -> zbus::fdo::Result<()> {
+        // Send command to Hyprland to switch workspace
+        use std::process::Command;
+        let output = Command::new("hyprctl")
+            .arg("dispatch")
+            .arg("workspace")
+            .arg(id.to_string())
+            .output();
+        
+        match output {
+            Ok(out) if out.status.success() => {
+                tracing::info!("Switched to workspace {}", id);
+                Ok(())
+            }
+            Ok(out) => {
+                let err = String::from_utf8_lossy(&out.stderr);
+                tracing::error!("Failed to switch workspace: {}", err);
+                Err(zbus::fdo::Error::Failed(err.to_string()))
+            }
+            Err(e) => {
+                tracing::error!("Failed to execute hyprctl: {}", e);
+                Err(zbus::fdo::Error::Failed(e.to_string()))
+            }
+        }
+    }
+
     async fn ping(&self) -> u64 {
         use std::time::{SystemTime, UNIX_EPOCH};
         SystemTime::now()

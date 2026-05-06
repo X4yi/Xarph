@@ -3,9 +3,9 @@ import QtDBus 1.15
 
 Item {
     id: root
-
+    
     property var daemonInterface: DBusInterface {
-        service: "org.x4yi.X4Shell"
+        service: "org.x4yi.X4Shell.v1"
         path: "/org/x4yi/X4Shell/v1"
         iface: "org.x4yi.X4Shell.v1"
     }

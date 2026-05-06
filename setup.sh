@@ -35,21 +35,17 @@ print_header() {
     echo -e "${CYAN}${BOLD}"
     echo "╔════════════════════════════════════════════════════════════╗"
     echo "║                    X4Shell Setup v1.0                       ║"
-    echo "║              Hyprland-based Wayland Shell Manager            ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
 }
 
 print_menu() {
     print_header
-    echo -e "${BOLD}Select an option:${NC}"
-    echo ""
     echo -e "  ${CYAN}[1]${NC} Install      - Full system setup"
     echo -e "  ${CYAN}[2]${NC} Repair       - Fix broken installations"
     echo -e "  ${CYAN}[3]${NC} Update       - Update to latest version"
     echo -e "  ${CYAN}[4]${NC} Uninstall    - Remove X4Shell (--purge for full wipe)"
     echo -e "  ${CYAN}[5]${NC} Status       - Check installation health"
-    echo ""
     echo -e "  ${RED}[q]${NC} Quit"
     echo ""
     echo -n "Enter option [1-5/q]: "
@@ -146,6 +142,9 @@ process_template() {
     local session_script_path="${5:-$SESSION_SCRIPT_PATH}"
     
     log_debug "Processing template: $input → $output"
+    
+    # Create output directory if it doesn't exist
+    mkdir -p "$(dirname "$output")"
     
     sed -e "s|@DAEMON_PATH@|$daemon_path|g" \
          -e "s|@UI_PATH@|$ui_path|g" \
@@ -488,7 +487,7 @@ do_status() {
     fi
     
     if command -v busctl &>/dev/null; then
-        if busctl --user call org.x4yi.X4Shell.v1 /org/x4yi/X4Shell/v1 org.x4yi.X4Shell.v1 Ping 2>/dev/null | grep -q "u"; then
+        if busctl --user call org.x4yi.X4Shell.v1 /org/x4yi/X4Shell/v1 org.x4yi.X4Shell.v1 Ping &>/dev/null; then
             log_success "D-Bus connectivity: OK"
         else
             log_warn "D-Bus connectivity: FAILED (daemon may not be running)"
