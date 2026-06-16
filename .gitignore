@@ -1,0 +1,25 @@
+# Rust build artifacts
+target/
+
+# Package artifacts
+*.pkg.tar.zst
+*.tar.gz
+
+# Generated docs (rustdoc)
+doc/
+
+# IDE / Editor
+.cursor/
+.opencode/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

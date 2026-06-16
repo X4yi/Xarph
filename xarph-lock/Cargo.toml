@@ -1,0 +1,15 @@
+[package]
+name = "xarph-lock"
+version = "0.2.0"
+edition = "2021"
+
+[dependencies]
+smithay-client-toolkit = "0.19.2"
+wayland-client = "0.31.14"
+wayland-protocols = { version = "0.32.12", features = ["staging"] }
+cairo-rs = { version = "0.19", features = ["v1_16"] }
+pam = "0.7"
+libc = "0.2"
+dirs = "6.0"
+log = "0.4"
+env_logger = "0.11"

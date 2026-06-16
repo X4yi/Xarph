@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Xarph
+Comment=Xarph Desktop Environment (Wayland)
+Exec=xarph-session
+Type=Application
+DesktopNames=Xarph
