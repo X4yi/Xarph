@@ -430,7 +430,7 @@ impl Tty {
         let udev_backend =
             UdevBackend::new(session.seat()).context("error creating a udev backend")?;
         let udev_dispatcher = Dispatcher::new(udev_backend, move |event, _, state: &mut State| {
-            state.backend.tty().on_udev_event(&mut state.niri, event);
+            state.backend.tty().expect("tty backend expected").on_udev_event(&mut state.niri, event);
         });
         event_loop
             .register_dispatcher(udev_dispatcher.clone())
@@ -462,7 +462,7 @@ impl Tty {
 
         event_loop
             .insert_source(notifier, move |event, _, state| {
-                state.backend.tty().on_session_event(&mut state.niri, event);
+                state.backend.tty().expect("tty backend expected").on_session_event(&mut state.niri, event);
             })
             .unwrap();
 
@@ -904,7 +904,7 @@ impl Tty {
         let token = niri
             .event_loop
             .insert_source(drm_notifier, move |event, meta, state| {
-                let tty = state.backend.tty();
+                let tty = state.backend.tty().expect("tty backend expected");
                 match event {
                     DrmEvent::VBlank(crtc) => {
                         let meta = meta.expect("VBlank events must have metadata");
@@ -1709,7 +1709,7 @@ impl Tty {
                     time: DrmEventTime::Monotonic(Duration::ZERO),
                 };
 
-                let tty = state.backend.tty();
+                let tty = state.backend.tty().expect("tty backend expected");
                 tty.on_vblank(&mut state.niri, node, crtc, meta);
             })
         {
@@ -2992,6 +2992,7 @@ fn queue_estimated_vblank_timer(
         .insert_source(timer, move |_, _, data| {
             data.backend
                 .tty()
+                .expect("tty backend expected")
                 .on_estimated_vblank_timer(&mut data.niri, output.clone());
             TimeoutAction::Drop
         })

@@ -1,0 +1,17 @@
+[Unit]
+Description=Xarph Shell (Panel + Desktop)
+After=xarph-wm.service
+BindsTo=xarph-wm.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/xarph-shell --mode full
+Slice=session.slice
+Restart=on-failure
+RestartSec=2s
+StartLimitBurst=5
+StartLimitIntervalSec=30
+
+[Install]
+WantedBy=xarph-wm.service

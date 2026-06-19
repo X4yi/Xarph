@@ -2457,15 +2457,6 @@ mod tests {
         -            natural_scroll: false,
         +            natural_scroll: true,
 
-        -    spawn_at_startup: [],
-        +    spawn_at_startup: [
-        +        SpawnAtStartup {
-        +            command: [
-        +                "waybar",
-        +            ],
-        +        },
-        +    ],
-
         -                0.3333333333333333,
         +                0.33333,
 

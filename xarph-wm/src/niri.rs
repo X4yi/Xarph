@@ -329,6 +329,10 @@ pub struct Niri {
     pub suppressed_buttons: HashSet<u32>,
     pub bind_cooldown_timers: HashMap<Key, RegistrationToken>,
     pub bind_repeat_timer: Option<RegistrationToken>,
+    /// Track if Super is currently pressed alone (no other key pressed during hold).
+    pub super_pressed_alone: bool,
+    /// Track if any non-Super key was pressed while Super was held.
+    pub super_had_other_key: bool,
     pub keyboard_focus: KeyboardFocus,
     pub layer_shell_on_demand_focus: Option<LayerSurface>,
     pub idle_inhibiting_surfaces: HashSet<WlSurface>,
@@ -768,7 +772,9 @@ impl State {
 
         {
             let _span = tracy_client::span!("flush_clients");
-            self.niri.display_handle.flush_clients().unwrap();
+            if let Err(e) = self.niri.display_handle.flush_clients() {
+                warn!("Failed to flush Wayland clients: {e}");
+            }
         }
 
         #[cfg(feature = "dbus")]
@@ -2566,6 +2572,8 @@ impl Niri {
             suppressed_buttons: HashSet::new(),
             bind_cooldown_timers: HashMap::new(),
             bind_repeat_timer: Option::default(),
+            super_pressed_alone: false,
+            super_had_other_key: false,
             presentation_state,
             security_context_state,
             gamma_control_manager_state,

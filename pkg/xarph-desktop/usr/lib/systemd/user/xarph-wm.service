@@ -1,0 +1,23 @@
+[Unit]
+Description=Xarph Wayland compositor
+BindsTo=graphical-session.target
+Before=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target
+
+Wants=xdg-desktop-autostart.target
+Before=xdg-desktop-autostart.target
+
+Wants=xarph-shell.service
+
+[Service]
+Slice=session.slice
+Type=notify
+ExecStart=xarph-wm --session
+Restart=on-failure
+RestartSec=3s
+StartLimitBurst=3
+StartLimitIntervalSec=60
+
+[Install]
+WantedBy=graphical-session.target

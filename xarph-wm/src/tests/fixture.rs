@@ -92,7 +92,7 @@ impl Fixture {
     pub fn add_output(&mut self, n: u8, size: (u16, u16)) {
         let state = self.niri_state();
         let niri = &mut state.niri;
-        state.backend.headless().add_output(niri, n, size);
+        state.backend.headless().expect("headless backend expected in tests").add_output(niri, n, size);
     }
 
     pub fn add_client(&mut self) -> ClientId {

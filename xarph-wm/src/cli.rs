@@ -26,6 +26,11 @@ pub struct Cli {
     /// on a TTY as your non-main compositor instance, to avoid messing up the global environment.
     #[arg(long)]
     pub session: bool,
+    /// Force headless backend (no real outputs).
+    ///
+    /// Useful for testing or running without a display.
+    #[arg(long)]
+    pub headless: bool,
     /// Command to run upon compositor startup.
     #[arg(last = true)]
     pub command: Vec<OsString>,

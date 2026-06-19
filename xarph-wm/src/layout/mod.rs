@@ -892,8 +892,9 @@ impl<W: LayoutElement> Layout<W> {
                     }
                 }
             }
-            MonitorSet::NoOutputs { .. } => {
-                panic!("tried to remove output when there were already none")
+            MonitorSet::NoOutputs { workspaces } => {
+                warn!("tried to remove output when there were already none");
+                MonitorSet::NoOutputs { workspaces }
             }
         }
     }
@@ -911,7 +912,8 @@ impl<W: LayoutElement> Layout<W> {
             ..
         } = &mut self.monitor_set
         else {
-            panic!()
+            warn!("add_column_by_idx called with no outputs");
+            return;
         };
 
         monitors[monitor_idx].add_column(workspace_idx, column, activate);
@@ -1045,7 +1047,10 @@ impl<W: LayoutElement> Layout<W> {
 
                         (0, WorkspaceAddWindowTarget::Auto)
                     }
-                    AddWindowTarget::Output(_) => panic!(),
+                    AddWindowTarget::Output(_) => {
+                        warn!("AddWindowTarget::Output not supported in NoOutputs state");
+                        return None;
+                    }
                     AddWindowTarget::Workspace(ws_id) => {
                         let ws_idx = workspaces.iter().position(|ws| ws.id() == ws_id).unwrap();
                         (ws_idx, WorkspaceAddWindowTarget::Auto)
@@ -1626,7 +1631,7 @@ impl<W: LayoutElement> Layout<W> {
 
     pub fn windows_for_output(&self, output: &Output) -> impl Iterator<Item = &W> + '_ {
         let MonitorSet::Normal { monitors, .. } = &self.monitor_set else {
-            panic!()
+            panic!("windows_for_output called with no outputs")
         };
 
         let moving_window = self
@@ -1645,7 +1650,7 @@ impl<W: LayoutElement> Layout<W> {
 
     pub fn windows_for_output_mut(&mut self, output: &Output) -> impl Iterator<Item = &mut W> + '_ {
         let MonitorSet::Normal { monitors, .. } = &mut self.monitor_set else {
-            panic!()
+            panic!("windows_for_output_mut called with no outputs")
         };
 
         let moving_window = self

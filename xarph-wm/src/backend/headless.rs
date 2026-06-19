@@ -154,7 +154,7 @@ impl Headless {
     }
 
     pub fn import_dmabuf(&mut self, _dmabuf: &Dmabuf) -> bool {
-        unimplemented!()
+        false
     }
 
     pub fn ipc_outputs(&self) -> Arc<Mutex<IpcOutputMap>> {

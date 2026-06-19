@@ -9,6 +9,8 @@
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 
+use tracing::warn;
+
 use crate::{Cast, Event, KeyboardLayouts, Window, Workspace};
 
 /// Part of the state communicated via the event stream.
@@ -135,8 +137,10 @@ impl EventStreamStatePart for WorkspacesState {
                 }
             }
             Event::WorkspaceActivated { id, focused } => {
-                let ws = self.workspaces.get(&id);
-                let ws = ws.expect("activated workspace was missing from the map");
+                let Some(ws) = self.workspaces.get(&id) else {
+                    warn!("activated workspace {} was missing from the map", id);
+                    return None;
+                };
                 let output = ws.output.clone();
 
                 for ws in self.workspaces.values_mut() {
@@ -154,8 +158,10 @@ impl EventStreamStatePart for WorkspacesState {
                 workspace_id,
                 active_window_id,
             } => {
-                let ws = self.workspaces.get_mut(&workspace_id);
-                let ws = ws.expect("changed workspace was missing from the map");
+                let Some(ws) = self.workspaces.get_mut(&workspace_id) else {
+                    warn!("changed workspace {} was missing from the map", workspace_id);
+                    return None;
+                };
                 ws.active_window_id = active_window_id;
             }
             event => return Some(event),
@@ -197,8 +203,9 @@ impl EventStreamStatePart for WindowsState {
                 }
             }
             Event::WindowClosed { id } => {
-                let win = self.windows.remove(&id);
-                win.expect("closed window was missing from the map");
+                if self.windows.remove(&id).is_none() {
+                    warn!("closed window {} was missing from the map", id);
+                }
             }
             Event::WindowFocusChanged { id } => {
                 for win in self.windows.values_mut() {
@@ -226,9 +233,11 @@ impl EventStreamStatePart for WindowsState {
             }
             Event::WindowLayoutsChanged { changes } => {
                 for (id, update) in changes {
-                    let win = self.windows.get_mut(&id);
-                    let win = win.expect("changed window was missing from the map");
-                    win.layout = update;
+                    if let Some(win) = self.windows.get_mut(&id) {
+                        win.layout = update;
+                    } else {
+                        warn!("changed window {} was missing from the map", id);
+                    }
                 }
             }
             event => return Some(event),
@@ -252,9 +261,11 @@ impl EventStreamStatePart for KeyboardLayoutsState {
                 self.keyboard_layouts = Some(keyboard_layouts);
             }
             Event::KeyboardLayoutSwitched { idx } => {
-                let kb = self.keyboard_layouts.as_mut();
-                let kb = kb.expect("keyboard layouts must be set before a layout can be switched");
-                kb.current_idx = idx;
+                if let Some(kb) = self.keyboard_layouts.as_mut() {
+                    kb.current_idx = idx;
+                } else {
+                        warn!("keyboard layouts not set, cannot switch layout");
+                }
             }
             event => return Some(event),
         }
@@ -313,8 +324,9 @@ impl EventStreamStatePart for CastsState {
                 self.casts.insert(cast.stream_id, cast);
             }
             Event::CastStopped { stream_id } => {
-                let cast = self.casts.remove(&stream_id);
-                cast.expect("stopped cast was missing from the map");
+                if self.casts.remove(&stream_id).is_none() {
+                    warn!("stopped cast {} was missing from the map", stream_id);
+                }
             }
             event => return Some(event),
         }

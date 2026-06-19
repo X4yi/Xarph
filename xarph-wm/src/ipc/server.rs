@@ -247,9 +247,9 @@ async fn handle_client(ctx: ClientCtx, stream: Async<'static, UnixStream>) -> an
             {
                 let state = ctx.event_stream_state.borrow();
                 for event in state.replicate() {
-                    events_tx
-                        .try_send(event)
-                        .expect("initial event burst had more events than buffer size");
+                    if let Err(e) = events_tx.try_send(event) {
+                        warn!("Dropping initial event due to full buffer: {e}");
+                    }
                 }
             }
 

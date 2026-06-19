@@ -76,7 +76,7 @@ impl XdgShellHandler for State {
         let mut grab_start_data = None;
 
         // See if this comes from a pointer grab.
-        let pointer = self.niri.seat.get_pointer().unwrap();
+        let pointer = self.niri.seat.get_pointer().expect("pointer expected for move request");
         pointer.with_grab(|grab_serial, grab| {
             if grab_serial == serial {
                 let start_data = grab.start_data();
@@ -160,7 +160,7 @@ impl XdgShellHandler for State {
         let mut grab_start_data = None;
 
         // See if this comes from a pointer grab.
-        let pointer = self.niri.seat.get_pointer().unwrap();
+        let pointer = self.niri.seat.get_pointer().expect("pointer expected for resize request");
         if pointer.has_grab(serial) {
             if let Some(start_data) = pointer.grab_start_data() {
                 if let Some((focus, _)) = &start_data.focus {
@@ -244,7 +244,7 @@ impl XdgShellHandler for State {
                 pointer.set_grab(self, grab, serial, Focus::Clear);
             }
             PointerOrTouchStartData::Touch(start_data) => {
-                let touch = self.niri.seat.get_touch().unwrap();
+                let touch = self.niri.seat.get_touch().expect("touch expected for touch resize");
                 let grab = TouchResizeGrab::new(start_data, window);
                 touch.set_grab(self, grab, serial);
             }
@@ -321,7 +321,10 @@ impl XdgShellHandler for State {
                     return;
                 }
 
-                let mon = self.niri.layout.monitor_for_output(output).unwrap();
+                let Some(mon) = self.niri.layout.monitor_for_output(output) else {
+                    warn!("monitor_for_output returned None for output {:?}", output);
+                    return;
+                };
                 if !mon.render_above_top_layer()
                     && layers.layers_on(Layer::Top).any(|l| {
                         (l.cached_state().keyboard_interactivity
@@ -361,8 +364,8 @@ impl XdgShellHandler for State {
             }
         };
 
-        let keyboard = seat.get_keyboard().unwrap();
-        let pointer = seat.get_pointer().unwrap();
+        let keyboard = seat.get_keyboard().expect("keyboard expected for popup grab");
+        let pointer = seat.get_pointer().expect("pointer expected for popup grab");
 
         // Smithay cannot do overlapping grabs, so if we have an IME keyboard grab, don't overwrite
         // it with a popup keyboard grab. This makes the popup menu work in Telegram while an IME
@@ -1266,7 +1269,10 @@ impl State {
         layer_surface: &LayerSurface,
         output: &Output,
     ) {
-        let output_geo = self.niri.global_space.output_geometry(output).unwrap();
+        let Some(output_geo) = self.niri.global_space.output_geometry(output) else {
+            warn!("output_geometry returned None for output {:?}", output);
+            return;
+        };
         let map = layer_map_for_output(output);
         let Some(layer_geo) = map.layer_geometry(layer_surface) else {
             return;

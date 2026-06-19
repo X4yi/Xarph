@@ -45,9 +45,9 @@ if ! remove_package; then
     # ── Binaries ───────────────────────────────────────────────────
     echo -e "${YELLOW}Removing binaries...${NC}"
     remove_path /usr/bin/xarph-shell
-    remove_path /usr/bin/xarph-launcher
     remove_path /usr/bin/xarph-lock
-    remove_path /usr/bin/xarph-process-admin
+    remove_path /usr/bin/xarph-admin
+    remove_path /usr/bin/Xarhives
     remove_path /usr/bin/xarph-services
     remove_path /usr/bin/xarph-network
     remove_path /usr/bin/xarph-settings

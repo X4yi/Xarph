@@ -104,7 +104,7 @@ impl Winit {
         event_loop
             .insert_source(winit, move |event, _, state| match event {
                 WinitEvent::Resized { size, .. } => {
-                    let winit = state.backend.winit();
+                    let winit = state.backend.winit().expect("winit backend expected");
                     winit.output.change_current_state(
                         Some(Mode {
                             size,
@@ -132,7 +132,7 @@ impl Winit {
                 }
                 WinitEvent::Input(event) => state.process_input_event(event),
                 WinitEvent::Focus(_) => (),
-                WinitEvent::Redraw => state.niri.queue_redraw(&state.backend.winit().output),
+                WinitEvent::Redraw => state.niri.queue_redraw(&state.backend.winit().expect("winit backend expected").output),
                 WinitEvent::CloseRequested => state.niri.stop_signal.stop(),
             })
             .unwrap();

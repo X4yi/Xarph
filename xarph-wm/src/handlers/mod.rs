@@ -330,15 +330,15 @@ impl WaylandDndGrabHandler for State {
 
         match type_ {
             dnd::GrabType::Pointer => {
-                let pointer = seat.get_pointer().unwrap();
-                let start_data = pointer.grab_start_data().unwrap();
+                let pointer = seat.get_pointer().expect("pointer expected for DnD");
+                let start_data = pointer.grab_start_data().expect("pointer grab start data expected");
                 let grab =
                     DnDGrab::new_pointer(&self.niri.display_handle, start_data, source, seat);
                 pointer.set_grab(self, grab, serial, Focus::Keep);
             }
             dnd::GrabType::Touch => {
-                let touch = seat.get_touch().unwrap();
-                let start_data = touch.grab_start_data().unwrap();
+                let touch = seat.get_touch().expect("touch expected for DnD");
+                let start_data = touch.grab_start_data().expect("touch grab start data expected");
                 let grab = DnDGrab::new_touch(&self.niri.display_handle, start_data, source, seat);
                 touch.set_grab(self, grab, serial);
             }
@@ -692,6 +692,7 @@ impl DrmLeaseHandler for State {
     fn drm_lease_state(&mut self, node: DrmNode) -> &mut DrmLeaseState {
         self.backend
             .tty()
+            .expect("tty backend expected")
             .get_device_from_node(node)
             .unwrap()
             .drm_lease_state
@@ -710,6 +711,7 @@ impl DrmLeaseHandler for State {
         );
         self.backend
             .tty()
+            .expect("tty backend expected")
             .get_device_from_node(node)
             .unwrap()
             .lease_request(request)
@@ -719,6 +721,7 @@ impl DrmLeaseHandler for State {
         debug!("Lease success");
         self.backend
             .tty()
+            .expect("tty backend expected")
             .get_device_from_node(node)
             .unwrap()
             .new_lease(lease);
@@ -728,6 +731,7 @@ impl DrmLeaseHandler for State {
         debug!("Destroyed lease");
         self.backend
             .tty()
+            .expect("tty backend expected")
             .get_device_from_node(node)
             .unwrap()
             .remove_lease(lease_id);
@@ -743,7 +747,7 @@ impl GammaControlHandler for State {
     }
 
     fn get_gamma_size(&mut self, output: &Output) -> Option<u32> {
-        match self.backend.tty().get_gamma_size(output) {
+        match self.backend.tty().expect("tty backend expected").get_gamma_size(output) {
             Ok(0) => None, // Setting gamma is not supported.
             Ok(size) => Some(size),
             Err(err) => {
@@ -757,7 +761,7 @@ impl GammaControlHandler for State {
     }
 
     fn set_gamma(&mut self, output: &Output, ramp: Option<Vec<u16>>) -> Option<()> {
-        match self.backend.tty().set_gamma(output, ramp) {
+        match self.backend.tty().expect("tty backend expected").set_gamma(output, ramp) {
             Ok(()) => Some(()),
             Err(err) => {
                 warn!("error setting gamma for output {}: {err:?}", output.name());
@@ -802,12 +806,12 @@ impl XdgActivationHandler for State {
 
         // Check the serial against both a keyboard and a pointer, since layer-shell surfaces
         // with no keyboard interactivity won't have any keyboard focus.
-        let kb_last_enter = seat.get_keyboard().unwrap().last_enter();
+        let kb_last_enter = seat.get_keyboard().expect("keyboard expected for serial check").last_enter();
         if kb_last_enter.is_some_and(|last_enter| serial.is_no_older_than(&last_enter)) {
             return true;
         }
 
-        let pointer_last_enter = seat.get_pointer().unwrap().last_enter();
+        let pointer_last_enter = seat.get_pointer().expect("pointer expected for serial check").last_enter();
         if pointer_last_enter.is_some_and(|last_enter| serial.is_no_older_than(&last_enter)) {
             return true;
         }

@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/WallpaperLayer.qml</file>
+        <file>qml/Desktop.qml</file>
+        <file>qml/DesktopObject.qml</file>
+        <file>qml/Panel.qml</file>
+        <file>qml/StartButton.qml</file>
+        <file>qml/StartMenu.qml</file>
+        <file>qml/ClockWidget.qml</file>
+        <file>qml/WorkspaceWidget.qml</file>
+        <file>qml/TrayWidget.qml</file>
+        <file>qml/ContextMenu.qml</file>
+    </qresource>
+</RCC>

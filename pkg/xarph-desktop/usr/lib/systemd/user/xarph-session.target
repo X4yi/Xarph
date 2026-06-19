@@ -1,0 +1,10 @@
+[Unit]
+Description=Xarph Desktop Session
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target
+RefuseManualStart=yes
+RefuseManualStop=yes
+
+[Install]
+WantedBy=graphical-session.target

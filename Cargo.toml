@@ -1,9 +1,10 @@
 [workspace]
 members = [
     "xarph-settings",
+    "Xarhives",
     "xarph-sdk",
     "xarph-lock",
-    "xarph-process-admin",
+    "xarph-admin",
     "xarph-services",
     "xarph-network",
     "xarph-shell",
@@ -21,7 +22,7 @@ edition = "2021"
 repository = "https://github.com/xarph/xarph"
 
 [workspace.dependencies]
-niri-ipc = { package = "xarph-sdk", path = "xarph-sdk", features = ["clap"] }
+niri-ipc = { package = "xarph-sdk", path = "xarph-sdk" }
 anyhow = "1.0.102"
 bitflags = "2.11.1"
 clap = { version = "4.6.1", features = ["derive"] }
@@ -31,6 +32,16 @@ serde_json = "1.0.149"
 tracing = { version = "0.1.44", features = ["max_level_trace", "release_max_level_debug"] }
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 tracy-client = { version = "0.18.4", default-features = false }
+cxx-qt = { version = "0.8", features = ["qt_gui"] }
+cxx-qt-build = "0.8"
+freedesktop-desktop-entry = "0.8"
+sysinfo = "0.39"
+dirs = "6.0"
+uuid = { version = "1.10", features = ["v4"] }
+tokio = { version = "1.52", features = ["rt", "macros", "rt-multi-thread", "time", "net"] }
+async-channel = "2"
+zbus = { version = "5.12", features = ["blocking"] }
+notify = "8.2"
 
 [workspace.dependencies.smithay]
 git = "https://github.com/Smithay/smithay.git"

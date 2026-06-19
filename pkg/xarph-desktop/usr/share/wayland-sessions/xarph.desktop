@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Xarph
+Comment=Xarph Wayland compositor (based on niri)
+Exec=xarph-session
+Type=Application
+DesktopNames=xarph

@@ -209,27 +209,27 @@ impl Backend {
         }
     }
 
-    pub fn tty(&mut self) -> &mut Tty {
+    pub fn tty(&mut self) -> Option<&mut Tty> {
         if let Self::Tty(v) = self {
-            v
+            Some(v)
         } else {
-            panic!("backend is not Tty");
+            None
         }
     }
 
-    pub fn winit(&mut self) -> &mut Winit {
+    pub fn winit(&mut self) -> Option<&mut Winit> {
         if let Self::Winit(v) = self {
-            v
+            Some(v)
         } else {
-            panic!("backend is not Winit")
+            None
         }
     }
 
-    pub fn headless(&mut self) -> &mut Headless {
+    pub fn headless(&mut self) -> Option<&mut Headless> {
         if let Self::Headless(v) = self {
-            v
+            Some(v)
         } else {
-            panic!("backend is not Headless")
+            None
         }
     }
 }

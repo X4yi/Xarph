@@ -456,6 +456,22 @@ impl State {
                 let raw = keysym.raw_latin_sym_or_raw_current_sym();
                 let modifiers = modifiers_from_state(*mods);
 
+                // Detect Super key press/release for start menu toggle.
+                // Track: Super pressed alone (no other key during hold) → toggle start menu on release.
+                let is_super = matches!(raw, Some(Keysym::Super_L | Keysym::Super_R));
+                if pressed && is_super {
+                    this.niri.super_pressed_alone = true;
+                    this.niri.super_had_other_key = false;
+                } else if pressed && !is_super && this.niri.super_pressed_alone {
+                    this.niri.super_had_other_key = true;
+                } else if !pressed && is_super && this.niri.super_pressed_alone && !this.niri.super_had_other_key {
+                    this.niri.super_pressed_alone = false;
+                    niri_ipc::toggle::send_toggle();
+                    return FilterResult::Intercept(None);
+                } else if !pressed && is_super {
+                    this.niri.super_pressed_alone = false;
+                }
+
                 // After updating XKB state from accessibility-grabbed keys, return right away and
                 // don't handle them.
                 #[cfg(feature = "dbus")]
@@ -2274,6 +2290,9 @@ impl State {
             Action::ToggleOverview => {
                 self.niri.layout.toggle_overview();
                 self.niri.queue_redraw_all();
+            }
+            Action::ToggleStartMenu => {
+                niri_ipc::toggle::send_toggle();
             }
             Action::OpenOverview => {
                 if self.niri.layout.open_overview() {

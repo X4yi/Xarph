@@ -14,6 +14,9 @@ depends=(
     'fuzzel'
     'gtk4'
     'gtk4-layer-shell'
+    'gstreamer'
+    'gst-plugins-base'
+    'gst-plugins-good'
     'pipewire'
     'polkit'
     'xdg-desktop-portal'
@@ -27,16 +30,18 @@ makedepends=(
     'pkg-config'
     'clang'
     'libinput'
-    'libseat'
+    'seatd'
     'pipewire'
     'pango'
     'cairo'
     'glib2'
     'libdrm'
-    'libgbm'
-    'libegl'
+    'mesa'
+    'libglvnd'
     'wayland-protocols'
     'libxkbcommon'
+    'gstreamer'
+    'gst-plugins-base'
 )
 options=(!lto)
 
@@ -56,11 +61,9 @@ build() {
         -p xarph-lock \
         -p xarph-services \
         -p xarph-network \
-        -p xarph-process-admin
-
-    cargo build --release \
-        --manifest-path xarph-wm/Cargo.toml \
-        --bin xarph-wm
+        -p xarph-admin \
+        -p Xarhives \
+        -p xarph-wm
 }
 
 package() {
@@ -78,9 +81,9 @@ package() {
     install -Dm755 target/release/xarph-lock           "${BINDIR}/xarph-lock"
     install -Dm755 target/release/xarph-services       "${BINDIR}/xarph-services"
     install -Dm755 target/release/xarph-network        "${BINDIR}/xarph-network"
-    install -Dm755 target/release/xarph-process-admin  "${BINDIR}/xarph-process-admin"
-
-    install -Dm755 xarph-wm/target/release/xarph-wm  "${BINDIR}/xarph-wm"
+    install -Dm755 target/release/xarph-admin       "${BINDIR}/xarph-admin"
+    install -Dm755 target/release/Xarhives          "${BINDIR}/Xarhives"
+    install -Dm755 target/release/xarph-wm            "${BINDIR}/xarph-wm"
     install -Dm755 xarph-wm/resources/xarph-session   "${BINDIR}/xarph-session"
 
     # Desktop entry

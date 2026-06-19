@@ -6,6 +6,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc;
 use std::thread;
+use tracing::warn;
 
 // ── Wallpaper Configuration ────────────────────────────────────────────
 
@@ -20,6 +21,14 @@ pub enum WallpaperConfig {
     },
     #[serde(rename = "color")]
     Color { hex: String },
+    #[serde(rename = "video")]
+    Video {
+        path: String,
+        #[serde(default = "default_wallpaper_mode")]
+        mode: WallpaperMode,
+        #[serde(default = "default_true")]
+        loop_play: bool,
+    },
 }
 
 fn default_wallpaper_mode() -> WallpaperMode {
@@ -66,10 +75,6 @@ pub struct XarphConfig {
     pub theme: Option<String>,
     pub launcher_grid_size: Option<u32>,
     pub clock_format: Option<String>,
-    pub system_refresh_ms: Option<u64>,
-    pub show_cpu: Option<bool>,
-    pub show_ram: Option<bool>,
-    pub network_interface: Option<String>,
     pub theme_config: Option<ThemeConfig>,
     pub widget_config: WidgetConfig,
     pub keybind_config: KeybindConfig,
@@ -88,10 +93,6 @@ impl Default for XarphConfig {
             theme: None,
             launcher_grid_size: None,
             clock_format: Some("%H:%M  %a %d %b".to_string()),
-            system_refresh_ms: Some(2000),
-            show_cpu: Some(true),
-            show_ram: Some(true),
-            network_interface: None,
             theme_config: None,
             widget_config: WidgetConfig {
                 launcher: WidgetVisibility {
@@ -103,14 +104,6 @@ impl Default for XarphConfig {
                     config: None,
                 },
                 clock: WidgetVisibility {
-                    visible: true,
-                    config: None,
-                },
-                system: WidgetVisibility {
-                    visible: true,
-                    config: None,
-                },
-                network: WidgetVisibility {
                     visible: true,
                     config: None,
                 },
@@ -130,7 +123,7 @@ impl Default for XarphConfig {
 impl XarphConfig {
     pub fn load() -> Self {
         ConfigLoader::load_default().unwrap_or_else(|e| {
-            eprintln!("Failed to load Xarph config: {e}");
+            warn!("Failed to load Xarph config: {e}");
             Self::default()
         })
     }
@@ -157,7 +150,7 @@ impl XarphConfig {
     }
 
     pub fn load_with_themes(manager: &mut ThemeManager) -> std::io::Result<XarphConfig> {
-        let mut config = Self::load();
+        let config = Self::load();
         manager.load_themes()?;
         if let Some(name) = config.theme.clone() {
             manager.set_current_theme(&name);
@@ -178,8 +171,6 @@ impl XarphConfig {
             "launcher" => self.widget_config.launcher.visible,
             "workspaces" => self.widget_config.workspaces.visible,
             "clock" => self.widget_config.clock.visible,
-            "system" => self.widget_config.system.visible,
-            "network" => self.widget_config.network.visible,
             _ => false,
         }
     }
@@ -189,8 +180,6 @@ impl XarphConfig {
             "launcher" => self.widget_config.launcher.visible = visible,
             "workspaces" => self.widget_config.workspaces.visible = visible,
             "clock" => self.widget_config.clock.visible = visible,
-            "system" => self.widget_config.system.visible = visible,
-            "network" => self.widget_config.network.visible = visible,
             _ => {}
         }
     }
@@ -334,18 +323,6 @@ fn default_panel_widgets() -> Vec<PanelWidgetConfig> {
             ..Default::default()
         },
         PanelWidgetConfig {
-            id: "network".to_string(),
-            kind: WidgetKind::Network,
-            section: PanelSection::End,
-            ..Default::default()
-        },
-        PanelWidgetConfig {
-            id: "system".to_string(),
-            kind: WidgetKind::System,
-            section: PanelSection::End,
-            ..Default::default()
-        },
-        PanelWidgetConfig {
             id: "tray".to_string(),
             kind: WidgetKind::Tray,
             section: PanelSection::End,
@@ -410,8 +387,6 @@ pub enum WidgetKind {
     Launcher,
     Workspaces,
     Clock,
-    Network,
-    System,
     Tray,
     ConfigButton,
 }
@@ -440,14 +415,6 @@ pub struct PanelWidgetConfig {
     #[serde(default)]
     pub icon_size: Option<i32>,
     #[serde(default)]
-    pub show_cpu: Option<bool>,
-    #[serde(default)]
-    pub show_ram: Option<bool>,
-    #[serde(default)]
-    pub network_interface: Option<String>,
-    #[serde(default)]
-    pub interval_ms: Option<u64>,
-    #[serde(default)]
     pub max_visible: Option<usize>,
 }
 
@@ -462,10 +429,6 @@ impl Default for PanelWidgetConfig {
             clock_format: None,
             date_format: None,
             icon_size: None,
-            show_cpu: None,
-            show_ram: None,
-            network_interface: None,
-            interval_ms: None,
             max_visible: None,
         }
     }
@@ -739,8 +702,6 @@ pub struct WidgetConfig {
     pub launcher: WidgetVisibility,
     pub workspaces: WidgetVisibility,
     pub clock: WidgetVisibility,
-    pub system: WidgetVisibility,
-    pub network: WidgetVisibility,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -1155,14 +1116,10 @@ impl ThemeManager {
 impl Serialize for XarphConfig {
     fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         use serde::ser::SerializeStruct;
-        let mut state = serializer.serialize_struct("XarphConfig", 17)?;
+        let mut state = serializer.serialize_struct("XarphConfig", 13)?;
         state.serialize_field("theme", &self.theme)?;
         state.serialize_field("launcher_grid_size", &self.launcher_grid_size)?;
         state.serialize_field("clock_format", &self.clock_format)?;
-        state.serialize_field("system_refresh_ms", &self.system_refresh_ms)?;
-        state.serialize_field("show_cpu", &self.show_cpu)?;
-        state.serialize_field("show_ram", &self.show_ram)?;
-        state.serialize_field("network_interface", &self.network_interface)?;
         state.serialize_field("theme_config", &self.theme_config)?;
         state.serialize_field("widget_config", &self.widget_config)?;
         state.serialize_field("keybind_config", &self.keybind_config)?;
@@ -1184,10 +1141,6 @@ impl<'de> Deserialize<'de> for XarphConfig {
             theme: Option<String>,
             launcher_grid_size: Option<u32>,
             clock_format: Option<String>,
-            system_refresh_ms: Option<u64>,
-            show_cpu: Option<bool>,
-            show_ram: Option<bool>,
-            network_interface: Option<String>,
             theme_config: Option<ThemeConfig>,
             widget_config: Option<WidgetConfig>,
             keybind_config: Option<KeybindConfig>,
@@ -1205,10 +1158,6 @@ impl<'de> Deserialize<'de> for XarphConfig {
             theme: raw.theme,
             launcher_grid_size: raw.launcher_grid_size,
             clock_format: raw.clock_format,
-            system_refresh_ms: raw.system_refresh_ms,
-            show_cpu: raw.show_cpu,
-            show_ram: raw.show_ram,
-            network_interface: raw.network_interface,
             theme_config: raw.theme_config,
             widget_config: raw.widget_config.unwrap_or_default(),
             keybind_config: raw.keybind_config.unwrap_or_default(),
@@ -1228,7 +1177,8 @@ impl<'de> Deserialize<'de> for XarphConfig {
 pub fn config_path() -> PathBuf {
     let mut path = dirs::config_dir().unwrap_or_else(|| PathBuf::from("~/.config"));
     path.push("xarph");
-    path.push("xarph.toml");
+    path.push("conf");
+    path.push("shell.conf");
     path
 }
 

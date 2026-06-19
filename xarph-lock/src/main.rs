@@ -49,6 +49,20 @@ struct AppData {
     authenticated: Arc<Mutex<bool>>,
 }
 
+impl AppData {
+    fn lock_password(&self) -> std::sync::MutexGuard<'_, String> {
+        self.password.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    fn lock_error_message(&self) -> std::sync::MutexGuard<'_, Option<String>> {
+        self.error_message.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    fn lock_authenticated(&self) -> std::sync::MutexGuard<'_, bool> {
+        self.authenticated.lock().unwrap_or_else(|e| e.into_inner())
+    }
+}
+
 fn main() {
     env_logger::init();
 
@@ -312,13 +326,13 @@ impl KeyboardHandler for AppData {
         // Handle special keys.
         match event.keysym {
             Keysym::Return | Keysym::KP_Enter => {
-                let password = self.password.lock().unwrap().clone();
+                let password = self.lock_password().clone();
                 if password.is_empty() {
                     return;
                 }
                 if authenticate_pam(&password) {
                     log::info!("xarph-lock: authentication successful, unlocking");
-                    *self.authenticated.lock().unwrap() = true;
+                    *self.lock_authenticated() = true;
                     if let Some(lock) = self.session_lock.take() {
                         lock.unlock();
                         self.conn.roundtrip().ok();
@@ -326,22 +340,21 @@ impl KeyboardHandler for AppData {
                     }
                 } else {
                     log::info!("xarph-lock: authentication failed");
-                    *self.error_message.lock().unwrap() =
-                        Some("Incorrect password".to_string());
-                    self.password.lock().unwrap().clear();
+                    *self.lock_error_message() = Some("Incorrect password".to_string());
+                    self.lock_password().clear();
                     // Re-render all lock surfaces with error.
                     self.render_all(qh);
                 }
                 return;
             }
             Keysym::BackSpace => {
-                self.password.lock().unwrap().pop();
+                self.lock_password().pop();
                 self.render_all(qh);
                 return;
             }
             Keysym::Escape => {
-                self.password.lock().unwrap().clear();
-                *self.error_message.lock().unwrap() = None;
+                self.lock_password().clear();
+                *self.lock_error_message() = None;
                 self.render_all(qh);
                 return;
             }
@@ -351,8 +364,8 @@ impl KeyboardHandler for AppData {
         // Handle text input.
         if let Some(text) = &event.utf8 {
             if !text.is_empty() && !text.chars().any(|c| c.is_control()) {
-                self.password.lock().unwrap().push_str(text);
-                *self.error_message.lock().unwrap() = None;
+                self.lock_password().push_str(text);
+                *self.lock_error_message() = None;
                 self.render_all(qh);
             }
         }
@@ -472,7 +485,7 @@ fn render_lock_surface(
         cr.show_text("Locked").ok();
 
         // Password mask.
-        let pwd = password.lock().unwrap();
+        let pwd = password.lock().unwrap_or_else(|e| e.into_inner());
         let mask = if pwd.is_empty() {
             String::new()
         } else {
@@ -486,7 +499,7 @@ fn render_lock_surface(
         cr.show_text(&mask).ok();
 
         // Error message.
-        if let Some(err) = error_message.lock().unwrap().as_ref() {
+        if let Some(err) = error_message.lock().unwrap_or_else(|e| e.into_inner()).as_ref() {
             cr.set_source_rgb(ERROR_COLOR.0, ERROR_COLOR.1, ERROR_COLOR.2);
             cr.set_font_size(14.0);
             let err_ext = cr.text_extents(err).unwrap();

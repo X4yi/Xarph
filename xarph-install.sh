@@ -11,12 +11,12 @@ PORTALDIR=/usr/share/xdg-desktop-portal
 
 echo "Installing Xarph binaries..."
 install -Dm755 "${SRCDIR}/target/release/xarph-shell"         "${BINDIR}/xarph-shell"
-install -Dm755 "${SRCDIR}/target/release/xarph-launcher"      "${BINDIR}/xarph-launcher"
 install -Dm755 "${SRCDIR}/target/release/xarph-settings"      "${BINDIR}/xarph-settings"
 install -Dm755 "${SRCDIR}/target/release/xarph-lock"          "${BINDIR}/xarph-lock"
 install -Dm755 "${SRCDIR}/target/release/xarph-services"      "${BINDIR}/xarph-services"
 install -Dm755 "${SRCDIR}/target/release/xarph-network"       "${BINDIR}/xarph-network"
-install -Dm755 "${SRCDIR}/target/release/xarph-process-admin" "${BINDIR}/xarph-process-admin"
+install -Dm755 "${SRCDIR}/target/release/xarph-admin"        "${BINDIR}/xarph-admin"
+install -Dm755 "${SRCDIR}/target/release/Xarhives"           "${BINDIR}/Xarhives"
 install -Dm755 "${SRCDIR}/target/release/xarph-wm"            "${BINDIR}/xarph-wm"
 install -Dm755 "${SRCDIR}/xarph-wm/resources/xarph-session"   "${BINDIR}/xarph-session"
 
